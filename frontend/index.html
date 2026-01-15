@@ -1,134 +1,46 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Multi-Agent Copilot</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 30px auto;
-      padding: 20px;
-    }
-    h1 {
-      color: #333;
-    }
-    textarea {
-      width: 100%;
-      height: 80px;
-      font-size: 1rem;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 1rem;
-    }
-    .response {
-      background-color: #f7f7f7;
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-top: 20px;
-      border-radius: 6px;
-    }
-    .agent-section {
-      margin-bottom: 15px;
-    }
-    .agent-section h3 {
-      margin-bottom: 5px;
-    }
-    .agent-section ul {
-      padding-left: 20px;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <h1>Multi-Agent Copilot</h1>
 
+  <div class="app-container">
+    <header>
+      <h1>Multi-Agent Copilot</h1>
+      <p class="subtitle">Your AI Assistant</p>
+    </header>
 
-  <textarea id="inputText" placeholder="Type a task for your AI agent...">Plan my Seattle trip</textarea>
-  <br />
-  <button onclick="submitTask()">Submit</button>
-  <button id="recallMemoryBtn">Recall Memory</button>
+    <main class="chat-wrapper">
+      <div id="chatContainer" class="chat-container">
+        <!-- Messages will appear here -->
+        <div class="message message-ai">
+          <div class="bubble">
+            Hello! I'm your Multi-Agent Copilot. How can I help you today?
+          </div>
+        </div>
+      </div>
+    </main>
 
-  <div id="responseBox" class="response"></div>
+    <div class="input-area">
+      <div class="input-container">
+        <textarea id="inputText" placeholder="Message Copilot..."></textarea>
+        <button onclick="submitTask()" class="btn-send">
+          ➤
+        </button>
+      </div>
+    </div>
+  </div>
 
-  <script>
-    async function submitTask() {
-      const input = document.getElementById("inputText").value;
-      await runAgent(input);
-    }
-
-
-
-    document.getElementById("recallMemoryBtn").addEventListener("click", async () => {
-      const keyword = prompt("Enter keyword to recall (leave empty for latest, type 'all' for all):");
-      let url = "/api/recall-memory";
-      if (keyword === "all") {
-        url += "?all=true";
-      } else if (keyword) {
-        url += `?keyword=${encodeURIComponent(keyword)}`;
-      }
-      const response = await fetch(url);
-      const data = await response.json();
-      const box = document.getElementById("responseBox");
-      box.innerHTML = "";
-      const pre = document.createElement("pre");
-      pre.innerText = JSON.stringify(data, null, 2);
-      box.appendChild(pre);
-    });
-
-    async function runAgent(input) {
-      const res = await fetch("http://localhost:8000/api/run-agent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ input }),
-      });
-
-      const data = await res.json();
-      renderResponse(data.output || data.memory || {});
-    }
-
-
-    function renderResponse(response) {
-      const box = document.getElementById("responseBox");
-      box.innerHTML = "";
-
-      for (const [agent, result] of Object.entries(response)) {
-        const section = document.createElement("div");
-        section.className = "agent-section";
-
-        const title = document.createElement("h3");
-        title.textContent = agent.charAt(0).toUpperCase() + agent.slice(1);
-        section.appendChild(title);
-
-        const content = document.createElement("div");
-
-        if (typeof result === "object") {
-          if (Array.isArray(result)) {
-            const list = document.createElement("ul");
-            result.forEach(item => {
-              const li = document.createElement("li");
-              li.textContent = item;
-              list.appendChild(li);
-            });
-            content.appendChild(list);
-          } else {
-            const pre = document.createElement("pre");
-            pre.textContent = JSON.stringify(result, null, 2);
-            content.appendChild(pre);
-          }
-        } else {
-          content.textContent = result;
-        }
-
-        section.appendChild(content);
-        box.appendChild(section);
-      }
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
+
 </html>
