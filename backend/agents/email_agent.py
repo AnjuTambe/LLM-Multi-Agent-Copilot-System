@@ -1,25 +1,33 @@
-
 import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-
-SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")  # Store this in .env
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 def run_email(user_input: str) -> dict:
-	message = Mail(
-		from_email='tambeanju987@gmail.com',  # ✅ Must match a verified sender in SendGrid
-		to_emails='tambeanju987@gmail.com',
-		subject='Multi-Agent Copilot Task',
-		plain_text_content=f"Details: {user_input}"
-	)
+	sender_email = "anjutambe987@gmail.com"
+	app_password = os.getenv("GMAIL_APP_PASSWORD")
+
+	if not app_password:
+		return {"email_result": "Failed to send email: GMAIL_APP_PASSWORD is not set in .env"}
+
+	receiver_email = "anjutambe987@gmail.com"
+	subject = "Multi-Agent Copilot Task"
+	body = f"Details: {user_input}"
+
+	msg = MIMEMultipart()
+	msg['From'] = sender_email
+	msg['To'] = receiver_email
+	msg['Subject'] = subject
+	msg.attach(MIMEText(body, 'plain'))
 
 	try:
-		sg = SendGridAPIClient(SENDGRID_API_KEY)
-		response = sg.send(message)
-		return {
-			"email_result": f"Email sent successfully. Status Code: {response.status_code}"
-		}
+		# Connect to Gmail's SMTP server
+		server = smtplib.SMTP('smtp.gmail.com', 587)
+		server.starttls()
+		server.login(sender_email, app_password)
+		server.send_message(msg)
+		server.quit()
+
+		return {"email_result": "Email sent successfully via Gmail SMTP!"}
 	except Exception as e:
-		return {
-			"email_result": f"Failed to send email: {str(e)}"
-		}
+		return {"email_result": f"Failed to send email via Gmail: {str(e)}"}

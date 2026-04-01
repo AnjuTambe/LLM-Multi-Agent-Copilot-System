@@ -8,6 +8,32 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def run_planner(user_input: str):
+	import requests
+	
+	# 0. Try Gemini if API Key exists
+	gemini_key = os.getenv("GEMINI_API_KEY")
+	if gemini_key:
+		try:
+			prompt = f"""
+			You are a smart AI planner agent. Given a user command, decide which agents should be called from the following list: search, calendar, checklist, email. Return a JSON object with a 'tasks' array listing the agents to call (e.g. ["search", "calendar"]), and a 'planner_output' string summarizing your reasoning.
+			User command: {user_input}
+			"""
+			payload = {
+				"contents": [{"parts": [{"text": prompt}]}],
+				"generationConfig": {"response_mime_type": "application/json"}
+			}
+			resp = requests.post(f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}", json=payload)
+			data = resp.json()
+			reply = data["candidates"][0]["content"]["parts"][0]["text"]
+			if "```json" in reply:
+				reply = reply.split("```json")[1].split("```")[0].strip()
+			elif "```" in reply:
+				reply = reply.split("```")[1].strip()
+			return json.loads(reply)
+		except Exception as e:
+			print(f"Gemini Error: {e}")
+			pass
+			
 	# 1. Try OpenAI if API Key exists
 	api_key = os.getenv("OPENAI_API_KEY")
 	if api_key and api_key.startswith("sk-"):

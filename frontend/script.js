@@ -137,10 +137,20 @@ function appendAgentResponse(response) {
         title.textContent = agentName;
         contentWrapper.appendChild(title);
 
-        if (typeof result === "object") {
-            const pre = document.createElement('pre');
-            pre.textContent = JSON.stringify(result, null, 2);
-            contentWrapper.appendChild(pre);
+        if (typeof result === "object" && result !== null) {
+            const p = document.createElement('p');
+            p.style.marginBottom = '12px';
+            p.style.whiteSpace = 'pre-wrap';
+            p.style.fontFamily = 'inherit';
+            
+            let textOutput = "";
+            for (const [k, v] of Object.entries(result)) {
+                if (Array.isArray(v)) { textOutput += v.join('\n') + '\n'; }
+                else if (typeof v === "string") { textOutput += v + '\n'; }
+                else { textOutput += JSON.stringify(v) + '\n'; }
+            }
+            p.textContent = textOutput.trim();
+            contentWrapper.appendChild(p);
         } else {
             const p = document.createElement('p');
             p.style.marginBottom = '12px';

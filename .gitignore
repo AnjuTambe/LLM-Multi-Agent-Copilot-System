@@ -16,3 +16,9 @@ venv/
 # Environment variables
 .env
 *.env
+
+# Google Credentials
+credentials.json
+*.json
+token.pickle
+*.pickle

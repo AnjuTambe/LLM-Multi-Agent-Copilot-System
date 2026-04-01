@@ -53,6 +53,7 @@ def create_event(
 	"""
 	try:
 		creds = authenticate_google()
+		# Create Google Calendar client
 		service = build('calendar', 'v3', credentials=creds)
 
 		event = {

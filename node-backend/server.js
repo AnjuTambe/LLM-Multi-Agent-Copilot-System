@@ -7,16 +7,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Use API key from environment variable
+// Use API key from environment variable
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// 📩 Dynamic email route
+// Dynamic email route
 app.post('/send-email', async (req, res) => {
   const { to, subject, name, message } = req.body;
 
   const email = {
     to: to, // recipient email
-    from: 'tambeanju987@gmail.com', // ✅ must be your verified sender email
+    from: 'tambeanju987@gmail.com', // must be your verified sender email
     subject: subject,
     html: `
       <h2>Hello ${name},</h2>
